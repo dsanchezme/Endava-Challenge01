@@ -7,7 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+// import java.util.LinkedList;
 import java.util.List;
+// import java.util.Queue;
+
+// import javafx.util.Pair;
 
 public class App {
 
@@ -18,14 +22,16 @@ public class App {
     // Matrix
     // private static List<List<Integer>> matrix;
     private static int matrix[][];
-    // Counter
-    private static int counter[][];
+    // Longest Path lengths
+    private static HashMap<List<Integer>, Integer> pathLengths = new HashMap<>();
+    // Best paths
+    // private static HashMap<List<Integer>, List<List<Integer>>> bestPaths = new HashMap<>();
     //Each Possible
     private static HashMap<List<Integer>, List<List<Integer>>> possibles = new HashMap<>();
-    //Longest paths for each cell
-    private static HashMap<List<Integer>, List<List<List<Integer>>>> allPaths = new HashMap<>();
-
-
+    //Longest paths
+    // private static List<List<List<Integer>>> longestPaths;
+    // Initial cells
+    private static List<List<Integer>> initPoints = new ArrayList<>();
 
 
     public static void main(String[] args) throws Exception {
@@ -35,61 +41,35 @@ public class App {
 
         fillPossibles();
 
-        // for (List<Integer> key : possibles.keySet()) {
-        //     List<Integer> posMinValue = new ArrayList<>();
-        //     int minValue = 0;
-        //     for (List<Integer> movement : possibles.get(key)) {
-                
-        //     }
-        
-        // }
-
-
-        // 
-
         // Print all-possible-movements dictionary
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 String toPrint = Arrays.asList(i,j) + " : ";
                 for (List<Integer> movement : possibles.get(Arrays.asList(i,j))) {
-                    toPrint += "[" + movement.get(0) + "," + movement.get(1) + "] ";
+                    toPrint += movement + " ";
                 }
                 System.out.println(toPrint);
             }
         }
+        
         System.out.println("---");
 
-        // findAllPathsFromACell(Arrays.asList(0,2));
-
+        // Fill and print lengths for longest path from each cell
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 List<Integer> key = Arrays.asList(i,j);
-                if( allPaths.keySet().contains(key) ){
-                    for (List<List<Integer>> path : allPaths.get(key)) {
-                        System.out.print(key + " : ");
-                        for (List<Integer> cell : path) {
-                            System.out.print(cell + " ");
-                        }
-                        System.out.println("");
-                    }
-                }
+                pathLength(key);
+                System.out.println(key + " : " + pathLengths.get(key));
             }
         }
 
-        // for (List<Integer> key : possibles.keySet()) {
-        //     String toPrint = "[" + key.get(0) + "," + key.get(1) + "] : ";
-        //     for (List<Integer> movement : possibles.get(key)) {
-        //         toPrint += "[" + movement.get(0) + "," + movement.get(1) + "] ";
-        //     }
-        //     System.out.println(toPrint);
-        // }
     }
 
 
 
     // https://devqa.io/java-read-files/
     static void readFile() throws IOException{
-        String filePath = "../map-test.txt";
+        String filePath = "map-test.txt";
         Path path = Paths.get(filePath);
         BufferedReader bufferedReader = Files.newBufferedReader(path);
         
@@ -111,6 +91,7 @@ public class App {
         bufferedReader.close();
     }
 
+    // Return a list of all possible movements for a given cell
     static List<List<Integer>> possibleMovements(int i, int j){
 
         List<List<Integer>> allowedMovements = Arrays.asList(Arrays.asList(i-1,j), Arrays.asList(i+1,j), Arrays.asList(i,j-1), Arrays.asList(i,j+1));
@@ -133,85 +114,80 @@ public class App {
         return result;
     }
 
-    // static void setLengths(){
-    //     for (int i = 0; i < m; i++) {
-    //         for (int j = 0; j < n; j++) {
-    //             for (List<Integer> movement : possibleMovements(i, j)) {
-    //                 counter[movement.get(0)][movement.get(1)] =+ 1;
-    //             }
-    //         }
-    //     }
-    // }
-
+    // Fills possibles dictionary
     static void fillPossibles(){
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 List<Integer> pair = Arrays.asList(i,j);
-                possibles.put(pair, possibleMovements(i, j));
+                List<List<Integer>> movements = possibleMovements(i, j);
+                possibles.put(pair, movements);
+                if(movements.size() > 0){
+                    initPoints.add(pair);
+                }
             }
         }
     }
 
-    // static int getPathLenght(int i, int j){
-    //     if(possibleMovements(i, j).size() == 0){
-    //         return 1;
-    //     }
-    //     int temp = 0;
-    //     for (List<Integer> movement : possibleMovements(i, j)) {
-    //         temp += getPathLenght(movement.get(0), movement.get(1));
-    //     }
-    //     return temp;
-    // }
+    // Fills pathLengths dictionary with the lengths of the longest path from each cell
+    static int pathLength(List<Integer> current){
 
-    // static List<List<List<Integer>>> findAllPathsFromACell(List<Integer> current){
-    //     // List<Integer> current = Arrays.asList(i,j);
+        if( pathLengths.keySet().contains(current)){
+            return pathLengths.get(current);
+        }
+
+        int longest;
+        if (matrix[current.get(0)][current.get(1)] != -1) {
+            longest = 1;
+        }else{
+            longest = 0;
+        }
+
+        for (List<Integer> movement : possibleMovements(current.get(0), current.get(1))) {
+            int curLength = pathLength(movement) + 1;
+            if(curLength > longest){
+                longest = curLength;
+            }
+        }
         
-    //     if( allPaths.keySet().contains(current) ){
-    //         return allPaths.get(current);
+        pathLengths.put(current, longest);
+        return longest;
+    }
+
+    // static Pair<Integer, List<List<Integer>>> dfsTest(List<Integer> current){
+
+    //     if( pathLengths.keySet().contains(current)){
+    //         return new Pair<>(pathLengths.get(current), bestPaths.get(current));
     //     }
 
-    //     List<List<List<Integer>>> result = new ArrayList<>();
-    //     for (int i = 0; i < possibles.get(current).size(); i++) {
-    //         List<Integer> cell = possibles.get(current).get(i);
-    //     // for (List<Integer> cell : possibles.get(current)) {
-    //         // temp.addAll(findAllPathsFromACell(cell));
-    //         // System.out.println(cell);
+    //     List<List<Integer>> bestPath = new ArrayList<>();
+    //     int longest;
+    //     if (matrix[current.get(0)][current.get(1)] != -1) {
+    //         longest = 1;
+    //     }else{
+    //         longest = 0;
+    //     }
+
+    //     for (List<Integer> movement : possibleMovements(current.get(0), current.get(1))) {
+    //         Pair<Integer, List<List<Integer>>> temp = dfsTest(movement);
+    //         int curLength = temp.getKey() + 1;
+    //         List<List<Integer>> path = temp.getValue();
             
-    //         result.add(Arrays.asList(cell));
-            
-    //         for (List<List<Integer>> list : findAllPathsFromACell(cell)) {
-    //             result.set(i, Arrays.asList(cell).addAll(list));
+    //         if(curLength > longest){
+    //             longest = curLength;
+    //             bestPath = path;
     //         }
-    //             // List<List<List<Integer>>> list = findAllPathsFromACell(cell);
-    //         // for (int i = 0; i < list.size(); i++) {
-    //         //     result.set(i, Arrays.asList(cell).addAll(list.get(i)));
-            
-    //         // }
-    //         // for (List<List<Integer>> list : findAllPathsFromACell(cell)) {
-    //         //     list.add(0, cell);
-    //         //     temp.add(list);
-    //         //     result.get(0).add(e)
-    //         // }
-    //         // temp.addAll(allPaths.get(cell));
     //     }
-
-    //     allPaths.put(current, result);
-
-    //     for (List<List<Integer>> path : result) {
-    //         System.out.println(path.size());
-    //     }      
-
-    //     return result;
-
-
+        
+    //     pathLengths.put(current, longest);
+    //     List<List<Integer>> aux = new ArrayList<>(Arrays.asList(current));
+    //     aux.addAll(bestPath);
+    //     System.out.print(current + " : ");
+    //     for (List<Integer> item : bestPath) {
+    //         System.out.print(item + " ");
+    //     }
+    //     System.out.println("");
+    //     bestPaths.put(current, bestPath);
+    //     return new Pair<Integer, List<List<Integer>>>(longest, aux);
     // }
 
-    // static List<List<List<Integer>>> findAllPaths(int i, int j){
-    //     if(possibleMovements(i, j).size() == 0){
-    //         return Collections.<List<List<Integer>>>emptyList();
-    //     }
-    //     for (List<Integer> movement : possibleMovements(i, j)) {
-            
-    //     }
-    // }
 }

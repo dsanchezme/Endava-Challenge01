@@ -22,28 +22,20 @@ public class App {
     // Matrix
     // private static List<List<Integer>> matrix;
     private static int matrix[][];
-    // Longest Path lengths
-    private static HashMap<List<Integer>, Integer> pathLengths = new HashMap<>();
     // Best paths
     private static HashMap<List<Integer>, List<List<Integer>>> bestPathEachCell = new HashMap<>();
-    //Each Possible
-    private static HashMap<List<Integer>, List<List<Integer>>> possibles = new HashMap<>();
     //Longest paths
     private static List<List<List<Integer>>> longestPaths  = new ArrayList<>();
     //Best length
     private static int bestLength;
     //Best length
     private static List<List<Integer>> winnerPath;
-    // Initial cells
-    private static List<List<Integer>> initPoints = new ArrayList<>();
 
 
     public static void main(String[] args) throws Exception {
         readFile();
         // System.out.println("Rows: " + m);
         // System.out.println("Columns: " + n);
-
-        fillPossibles();
 
         // Fill and print lengths for longest path from each cell
         for (int i = 0; i < m; i++) {
@@ -66,11 +58,9 @@ public class App {
 
     }
 
-
-
     // https://devqa.io/java-read-files/
     static void readFile() throws IOException{
-        String filePath = "map-test.txt";
+        String filePath = "map.txt";
         Path path = Paths.get(filePath);
         BufferedReader bufferedReader = Files.newBufferedReader(path);
         
@@ -113,45 +103,6 @@ public class App {
         }
 
         return result;
-    }
-
-    // Fills possibles dictionary
-    static void fillPossibles(){
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                List<Integer> pair = Arrays.asList(i,j);
-                List<List<Integer>> movements = possibleMovements(i, j);
-                possibles.put(pair, movements);
-                if(movements.size() > 0){
-                    initPoints.add(pair);
-                }
-            }
-        }
-    }
-
-    // Fills pathLengths dictionary with the lengths of the longest path from each cell
-    static int pathLength(List<Integer> current){
-
-        if( pathLengths.keySet().contains(current)){
-            return pathLengths.get(current);
-        }
-
-        int longest;
-        if (getValue(current) != -1) {
-            longest = 1;
-        }else{
-            longest = 0;
-        }
-
-        for (List<Integer> movement : possibleMovements(current.get(0), current.get(1))) {
-            int curLength = pathLength(movement) + 1;
-            if(curLength > longest){
-                longest = curLength;
-            }
-        }
-        
-        pathLengths.put(current, longest);
-        return longest;
     }
 
     static List<List<Integer>> findPath(List<Integer> current){

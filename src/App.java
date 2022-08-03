@@ -25,11 +25,13 @@ public class App {
     // Longest Path lengths
     private static HashMap<List<Integer>, Integer> pathLengths = new HashMap<>();
     // Best paths
-    private static HashMap<List<Integer>, List<List<Integer>>> bestPaths = new HashMap<>();
+    private static HashMap<List<Integer>, List<List<Integer>>> bestPathEachCell = new HashMap<>();
     //Each Possible
     private static HashMap<List<Integer>, List<List<Integer>>> possibles = new HashMap<>();
     //Longest paths
-    // private static List<List<List<Integer>>> longestPaths;
+    private static List<List<List<Integer>>> longestPaths  = new ArrayList<>();
+    //Best length
+    private static int bestLength;
     // Initial cells
     private static List<List<Integer>> initPoints = new ArrayList<>();
 
@@ -70,9 +72,18 @@ public class App {
             for (int j = 0; j < n; j++) {
                 List<Integer> key = Arrays.asList(i,j);
                 findPath(key);
-                System.out.println(key + " : " + bestPaths.get(key));
+                System.out.println(key + " : " + bestPathEachCell.get(key));
             }
         }
+
+        System.out.println("---");
+
+        // Printing the list of best paths
+        System.out.println(bestLength);
+        for (List<List<Integer>> path : longestPaths) {
+            System.out.println(path);    
+        }
+        
 
     }
 
@@ -166,8 +177,8 @@ public class App {
 
     static List<List<Integer>> findPath(List<Integer> current){
 
-        if( bestPaths.keySet().contains(current)){
-            return bestPaths.get(current);
+        if( bestPathEachCell.keySet().contains(current)){
+            return bestPathEachCell.get(current);
         }
 
         List<List<Integer>> bestPath;
@@ -180,12 +191,20 @@ public class App {
         for (List<Integer> movement : possibleMovements(current.get(0), current.get(1))) {
             List<List<Integer>> curPath = new ArrayList<>(Arrays.asList(current));
             curPath.addAll(findPath(movement));
-            if(curPath.size() > bestPath.size()){
+            if(curPath.size() >= bestPath.size()){
                 bestPath = curPath;
+                if(bestPath.size() >= bestLength){
+                    if(bestPath.size() > bestLength){
+                        longestPaths = new ArrayList<>();
+                    }
+                    bestLength = bestPath.size();
+                    longestPaths.add(bestPath);
+                }
+
             }
         }
         
-        bestPaths.put(current, bestPath);
+        bestPathEachCell.put(current, bestPath);
         return bestPath;
     }
 

@@ -25,7 +25,7 @@ public class App {
     // Longest Path lengths
     private static HashMap<List<Integer>, Integer> pathLengths = new HashMap<>();
     // Best paths
-    // private static HashMap<List<Integer>, List<List<Integer>>> bestPaths = new HashMap<>();
+    private static HashMap<List<Integer>, List<List<Integer>>> bestPaths = new HashMap<>();
     //Each Possible
     private static HashMap<List<Integer>, List<List<Integer>>> possibles = new HashMap<>();
     //Longest paths
@@ -51,7 +51,7 @@ public class App {
                 System.out.println(toPrint);
             }
         }
-        
+
         System.out.println("---");
 
         // Fill and print lengths for longest path from each cell
@@ -60,6 +60,17 @@ public class App {
                 List<Integer> key = Arrays.asList(i,j);
                 pathLength(key);
                 System.out.println(key + " : " + pathLengths.get(key));
+            }
+        }
+
+        System.out.println("---");
+
+        // Fill and print lengths for longest path from each cell
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                List<Integer> key = Arrays.asList(i,j);
+                findPath(key);
+                System.out.println(key + " : " + bestPaths.get(key));
             }
         }
 
@@ -153,41 +164,29 @@ public class App {
         return longest;
     }
 
-    // static Pair<Integer, List<List<Integer>>> dfsTest(List<Integer> current){
+    static List<List<Integer>> findPath(List<Integer> current){
 
-    //     if( pathLengths.keySet().contains(current)){
-    //         return new Pair<>(pathLengths.get(current), bestPaths.get(current));
-    //     }
+        if( bestPaths.keySet().contains(current)){
+            return bestPaths.get(current);
+        }
 
-    //     List<List<Integer>> bestPath = new ArrayList<>();
-    //     int longest;
-    //     if (matrix[current.get(0)][current.get(1)] != -1) {
-    //         longest = 1;
-    //     }else{
-    //         longest = 0;
-    //     }
+        List<List<Integer>> bestPath;
+        if (matrix[current.get(0)][current.get(1)] != -1) {
+            bestPath = new ArrayList<>(Arrays.asList(current));
+        }else{
+            bestPath = new ArrayList<>();
+        }
 
-    //     for (List<Integer> movement : possibleMovements(current.get(0), current.get(1))) {
-    //         Pair<Integer, List<List<Integer>>> temp = dfsTest(movement);
-    //         int curLength = temp.getKey() + 1;
-    //         List<List<Integer>> path = temp.getValue();
-            
-    //         if(curLength > longest){
-    //             longest = curLength;
-    //             bestPath = path;
-    //         }
-    //     }
+        for (List<Integer> movement : possibleMovements(current.get(0), current.get(1))) {
+            List<List<Integer>> curPath = new ArrayList<>(Arrays.asList(current));
+            curPath.addAll(findPath(movement));
+            if(curPath.size() > bestPath.size()){
+                bestPath = curPath;
+            }
+        }
         
-    //     pathLengths.put(current, longest);
-    //     List<List<Integer>> aux = new ArrayList<>(Arrays.asList(current));
-    //     aux.addAll(bestPath);
-    //     System.out.print(current + " : ");
-    //     for (List<Integer> item : bestPath) {
-    //         System.out.print(item + " ");
-    //     }
-    //     System.out.println("");
-    //     bestPaths.put(current, bestPath);
-    //     return new Pair<Integer, List<List<Integer>>>(longest, aux);
-    // }
+        bestPaths.put(current, bestPath);
+        return bestPath;
+    }
 
 }

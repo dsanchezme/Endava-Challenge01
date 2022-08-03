@@ -32,58 +32,37 @@ public class App {
     private static List<List<List<Integer>>> longestPaths  = new ArrayList<>();
     //Best length
     private static int bestLength;
+    //Best length
+    private static List<List<Integer>> winnerPath;
     // Initial cells
     private static List<List<Integer>> initPoints = new ArrayList<>();
 
 
     public static void main(String[] args) throws Exception {
         readFile();
-        System.out.println("Rows: " + m);
-        System.out.println("Columns: " + n);
+        // System.out.println("Rows: " + m);
+        // System.out.println("Columns: " + n);
 
         fillPossibles();
-
-        // Print all-possible-movements dictionary
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                String toPrint = Arrays.asList(i,j) + " : ";
-                for (List<Integer> movement : possibles.get(Arrays.asList(i,j))) {
-                    toPrint += movement + " ";
-                }
-                System.out.println(toPrint);
-            }
-        }
-
-        System.out.println("---");
-
-        // Fill and print lengths for longest path from each cell
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                List<Integer> key = Arrays.asList(i,j);
-                pathLength(key);
-                System.out.println(key + " : " + pathLengths.get(key));
-            }
-        }
-
-        System.out.println("---");
 
         // Fill and print lengths for longest path from each cell
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 List<Integer> key = Arrays.asList(i,j);
                 findPath(key);
-                System.out.println(key + " : " + bestPathEachCell.get(key));
+                // System.out.println(key + " : " + bestPathEachCell.get(key));
             }
         }
 
-        System.out.println("---");
-
-        // Printing the list of best paths
-        System.out.println(bestLength);
-        for (List<List<Integer>> path : longestPaths) {
-            System.out.println(path);    
-        }
+        // System.out.println("---");
         
+        selectWinnerPath();
+        printOutput();
+
+        // System.out.println("\n-------------");
+        // System.out.println("-- Details --");
+        // System.out.println("-------------\n");
+        // printOutputDetails();
 
     }
 
@@ -158,7 +137,7 @@ public class App {
         }
 
         int longest;
-        if (matrix[current.get(0)][current.get(1)] != -1) {
+        if (getValue(current) != -1) {
             longest = 1;
         }else{
             longest = 0;
@@ -182,7 +161,7 @@ public class App {
         }
 
         List<List<Integer>> bestPath;
-        if (matrix[current.get(0)][current.get(1)] != -1) {
+        if (getValue(current) != -1) {
             bestPath = new ArrayList<>(Arrays.asList(current));
         }else{
             bestPath = new ArrayList<>();
@@ -206,6 +185,55 @@ public class App {
         
         bestPathEachCell.put(current, bestPath);
         return bestPath;
+    }
+
+    static void selectWinnerPath(){
+        int maxVerticalDistance = 0;
+        List<List<Integer>> winner = new ArrayList<>();
+        for (List<List<Integer>> path : longestPaths) {
+            List<Integer> start = path.get(0);
+            List<Integer> end = path.get(path.size() - 1);
+            int verticalDistance = getValue(end) - getValue(start);
+            if(verticalDistance > maxVerticalDistance){
+                maxVerticalDistance = verticalDistance;
+                winner = path;
+            }
+        }
+        longestPaths.remove(winner);
+        winnerPath = winner;
+    }
+    
+    static void printOutput(){
+        System.out.println("Steepest path length: " + bestLength);
+        System.out.println("List of paths:");
+
+        for (List<Integer> step : winnerPath) {
+            System.out.print(getValue(step));
+            if(step != winnerPath.get(winnerPath.size() - 1)){
+                System.out.print("-");
+            }
+        }
+        System.out.println("");
+        for (List<List<Integer>> path : longestPaths) {
+            for (List<Integer> step : path) {
+                System.out.print(getValue(step));
+                if(step != path.get(path.size() - 1)){
+                    System.out.print("-");
+                }
+            }
+            System.out.println("");
+        }
+    }
+
+    static void printOutputDetails(){
+        System.out.println(winnerPath);
+        for (List<List<Integer>> path : longestPaths) {
+            System.out.println(path);    
+        }
+    }
+
+    static int getValue(List<Integer> cell){
+        return matrix[cell.get(0)][cell.get(1)];
     }
 
 }

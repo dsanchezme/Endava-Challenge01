@@ -3,6 +3,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +35,8 @@ public class App {
 
 
     public static void main(String[] args) throws Exception {
+        long start = System.currentTimeMillis();
+        
         readFile();
         // System.out.println("Rows: " + m);
         // System.out.println("Columns: " + n);
@@ -55,6 +59,12 @@ public class App {
         // System.out.println("-- Details --");
         // System.out.println("-------------\n");
         // printOutputDetails();
+
+        long end = System.currentTimeMillis();
+
+        // https://stackoverflow.com/questions/5204051/how-to-calculate-the-running-time-of-my-program
+        NumberFormat formatter = new DecimalFormat("#0.00000");
+        System.out.print("\nExecution time is " + formatter.format((end - start) / 1000d) + " seconds");
 
     }
 
@@ -105,6 +115,7 @@ public class App {
         return result;
     }
 
+    // https://www.youtube.com/watch?v=wCc_nd-GiEc
     static List<List<Integer>> findPath(List<Integer> current){
 
         if( bestPathEachCell.keySet().contains(current)){
